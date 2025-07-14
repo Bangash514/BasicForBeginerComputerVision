@@ -1,0 +1,87 @@
+#Created by Engr;Ben China
+
+import tensorflow as tf
+import numpy as np
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input, decode_predictions
+import matplotlib.pyplot as plt
+import os
+
+# Load MobileNetV2 model pretrained on ImageNet
+model = MobileNetV2(weights='imagenet')
+
+# Lists of ImageNet cat and dog classes
+cat_classes = ['tiger_cat', 'tabby', 'Persian_cat', 'Egyptian_cat', 'Siamese_cat', 'lynx', 'cougar', 'cheetah']
+dog_classes = ['German_shepherd', 'malinois', 'golden_retriever', 'Labrador_retriever',
+               'cocker_spaniel', 'beagle', 'pomeranian', 'pug', 'Chihuahua', 'boxer', 'bulldog', 'Dalmatian']
+
+def get_broad_label(label):
+    if label in cat_classes:
+        return "cat"
+    elif label in dog_classes:
+        return "dog"
+    else:
+        return "other"
+
+def classify_and_show(img_path):
+    # Load and preprocess input image
+    img = image.load_img(img_path, target_size=(224, 224))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = preprocess_input(x)
+
+    # Predict the class probabilities
+    preds = model.predict(x)
+    decoded = decode_predictions(preds, top=3)[0]
+
+    print(f"Results for image: {img_path}")
+    for i, (imagenetID, label, prob) in enumerate(decoded):
+        print(f"{i+1}. {label}: {prob*100:.2f}%")
+
+    top_label = decoded[0][1]
+    broad_label = get_broad_label(top_label)
+    print(f"Detected category: {broad_label}\n")
+
+    # Show the input image
+    input_img = image.load_img(img_path)
+
+    # Reference images folder and exact filenames (matching your files)
+    reference_folder = r"C:\Users\Administrator\Downloads\reference_images"
+    filename_map = {
+        'cat': 'Cat.jpeg',   # matches your Cat.jpeg filename
+        'dog': 'dog.jpg',    # matches your dog.jpg filename
+        'other': 'other.jpg' # optional, create if needed
+    }
+
+    ref_img_filename = filename_map.get(broad_label, 'other.jpg')
+    ref_img_path = os.path.join(reference_folder, ref_img_filename)
+
+    if os.path.exists(ref_img_path):
+        ref_img = image.load_img(ref_img_path)
+    else:
+        print(f"Reference image for '{broad_label}' not found in '{reference_folder}'.")
+        ref_img = None
+
+    # Plot input and reference images side-by-side
+    plt.figure(figsize=(8, 4))
+
+    plt.subplot(1, 2, 1)
+    plt.title('Input Image')
+    plt.axis('off')
+    plt.imshow(input_img)
+
+    plt.subplot(1, 2, 2)
+    plt.title(f'Reference: {broad_label.capitalize()}')
+    plt.axis('off')
+    if ref_img is not None:
+        plt.imshow(ref_img)
+
+    plt.show()
+
+# Update paths to your images inside reference_images folder
+cat_path = r"C:\Users\Administrator\Downloads\reference_images\Cat.jpeg"
+dog_path = r"C:\Users\Administrator\Downloads\reference_images\dog.jpg"
+
+# Run the classification and show images
+classify_and_show(cat_path)
+classify_and_show(dog_path)
