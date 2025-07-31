@@ -1,0 +1,36 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+
+# Load the image
+image_path = r"C:\Users\Administrator\Downloads\Kareena_Kapoor_at_TOIFA16.jpg"
+image = Image.open(image_path)
+
+# Convert to grayscale
+gray_image = image.convert('L')
+
+# Convert image to numpy array for analysis
+image_array = np.array(gray_image)
+
+# Generate the histogram
+histogram, bins = np.histogram(image_array.flatten(), bins=256, range=[0, 256])
+
+# Plot the histogram
+plt.figure(figsize=(10, 6))
+plt.title("Image Histogram")
+plt.xlabel("Pixel Intensity")
+plt.ylabel("Frequency")
+plt.bar(bins[:-1], histogram, width=1, color='gray', alpha=0.75)
+plt.grid(True)
+plt.show()
+
+# Additional statistics (optional)
+mean_intensity = np.mean(image_array)
+std_dev_intensity = np.std(image_array)
+min_intensity = np.min(image_array)
+max_intensity = np.max(image_array)
+
+print(f"Mean Intensity: {mean_intensity}")
+print(f"Standard Deviation: {std_dev_intensity}")
+print(f"Min Intensity: {min_intensity}")
+print(f"Max Intensity: {max_intensity}")
