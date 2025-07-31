@@ -32,4 +32,4 @@ def translate_image(image, tx=100, ty=50):
 # Apply transformations
 rotated_image = rotate_image(image, 45)   # Rotate by 45 degrees
 scaled_image = scale_image(image, 1.5)    # Scale by 1.5x
-translated_image = translate_image(image, 100, 50)  # Translate by 100px right, 50px down
+translated_image = translate_image(image, 100, 50)  # Translate by 100px right, 50px down 
