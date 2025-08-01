@@ -1,0 +1,68 @@
+#Ben PhD Scholar
+
+import cv2
+import mediapipe as mp
+
+# Initialize MediaPipe Face Mesh
+mp_face_mesh = mp.solutions.face_mesh
+mp_drawing = mp.solutions.drawing_utils
+
+# Image path
+image_path = r"C:\Users\Administrator\Downloads\Kareena_Kapoor_at_TOIFA16.jpg"
+output_path = r"C:\processed_face_image.jpg"  # Output image path
+
+# Read the image
+image = cv2.imread(image_path)
+
+# Set up MediaPipe Face Mesh
+with mp_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
+    # Convert the image color to RGB (MediaPipe works with RGB)
+    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    results = face_mesh.process(rgb_image)
+
+    # If faces are detected
+    if results.multi_face_landmarks:
+        for face_landmarks in results.multi_face_landmarks:
+            # Draw face landmarks
+            mp_drawing.draw_landmarks(image, face_landmarks, mp_face_mesh.FACEMESH_TESSELATION)
+
+            # Draw landmarks for specific facial features (nose, eyes, etc.)
+            # Example: Drawing nose tip (landmark 1)
+            nose_tip = face_landmarks.landmark[1]
+            h, w, _ = image.shape
+            nose_x, nose_y = int(nose_tip.x * w), int(nose_tip.y * h)
+            cv2.putText(image, 'Nose', (nose_x, nose_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+
+            # Example: Left eye (landmark 33) and right eye (landmark 133)
+            left_eye = face_landmarks.landmark[33]
+            right_eye = face_landmarks.landmark[133]
+            left_eye_x, left_eye_y = int(left_eye.x * w), int(left_eye.y * h)
+            right_eye_x, right_eye_y = int(right_eye.x * w), int(right_eye.y * h)
+            cv2.putText(image, 'Left Eye', (left_eye_x, left_eye_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
+            cv2.putText(image, 'Right Eye', (right_eye_x, right_eye_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
+
+            # Example: Left eyebrow (landmark 70) and right eyebrow (landmark 300)
+            left_eyebrow = face_landmarks.landmark[70]
+            right_eyebrow = face_landmarks.landmark[300]
+            left_eyebrow_x, left_eyebrow_y = int(left_eyebrow.x * w), int(left_eyebrow.y * h)
+            right_eyebrow_x, right_eyebrow_y = int(right_eyebrow.x * w), int(right_eyebrow.y * h)
+            cv2.putText(image, 'Left Eyebrow', (left_eyebrow_x, left_eyebrow_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            cv2.putText(image, 'Right Eyebrow', (right_eyebrow_x, right_eyebrow_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+
+            # Example: Mouth (landmark range 78-84)
+            for i in range(78, 85):
+                mouth = face_landmarks.landmark[i]
+                mouth_x, mouth_y = int(mouth.x * w), int(mouth.y * h)
+                cv2.circle(image, (mouth_x, mouth_y), 2, (255, 255, 0), -1)
+
+    # Save the processed image
+    cv2.imwrite(output_path, image)
+
+    # Optionally, you can display the image with landmarks before saving
+    cv2.imshow('Processed Image with Labels', image)
+
+    # Wait until a key is pressed and close the image window
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    print(f"Processed image saved to: {output_path}")
