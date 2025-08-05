@@ -1,0 +1,36 @@
+#Ben PhD scholar
+
+import torch
+from PIL import Image
+import torchvision.transforms as transforms
+from torchvision.models import resnet18, ResNet18_Weights
+
+# Path to your single image
+image_path = r"C:\Users\Administrator\Downloads\01.jpg"
+
+# Define image preprocessing transform
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
+    )
+])
+
+# Load and preprocess image
+image = Image.open(image_path).convert("RGB")
+input_tensor = transform(image).unsqueeze(0)  # Add batch dimension
+
+# Load pretrained ResNet18 without final classification layer
+weights = ResNet18_Weights.DEFAULT
+model = resnet18(weights=weights)
+model = torch.nn.Sequential(*list(model.children())[:-1])  # Remove FC layer
+model.eval()
+
+# Extract features
+with torch.no_grad():
+    features = model(input_tensor).squeeze().numpy()
+
+print("Feature vector shape:", features.shape)
+print("Feature vector (first 10 values):", features[:10])
